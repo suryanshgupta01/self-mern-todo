@@ -6,12 +6,8 @@ const User = require('./model/Datamodel')
 const userdata = require('./model/userModel')
 const { generateToken } = require('./generateToken')
 const jwt = require('jsonwebtoken')
-const multer = require('multer');
-const upload = multer({ dest: 'uploads/' });
 const bodyParser = require('body-parser');
-const path = require('path');
 app.use(bodyParser.json({ limit: '10mb' }));
-app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 
 // import {Users} from './model/Datamodel'
 app.use(cors())
@@ -27,7 +23,7 @@ mongoose.connect('mongodb://localhost:27017/self-todo', {
 
 //USERDATA APIs
 // let user1
-app.post('/registeruser', upload.single('image'), async (req, res) => {
+app.post('/registeruser', async (req, res) => {
     console.log("req.body",req.body)
     try {
         if (await userdata.findOne({ email: req.body.email })) {
@@ -49,7 +45,7 @@ app.post('/registeruser', upload.single('image'), async (req, res) => {
             token: generateToken(user1._id),
         })
     } catch (error) {
-        res.send({ status: 'FAIL', error: 'eror' })
+        res.send({ status: 'FAIL', error: error })
         console.log("error occured in registering data entry")
     }
 })
