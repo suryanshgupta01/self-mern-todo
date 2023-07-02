@@ -16,8 +16,6 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import axios from 'axios';
 import { useToast } from '@chakra-ui/react';
 
-// TODO remove, this demo shouldn't need to reset the theme.
-
 const defaultTheme = createTheme();
 function Later({ info, navigate, toast }) {
   console.log("info", info)
@@ -26,9 +24,6 @@ function Later({ info, navigate, toast }) {
     navigate('/');
     toast({
       title: `${info.message}`,
-      // status: 'success',
-      // isClosable: true,
-      // title: 'Account created.',
       position: 'top-right',
       description: "We've created your account for you.",
       status: 'success',
@@ -58,15 +53,29 @@ export default function Signup() {
   const [info, setinfo] = useState(null);
   const toast = useToast()
   const navigate = useNavigate()
+
+  const [postImage, setPostImage] = useState({ myFile:'https://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d50?s=100' })
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPostImage({ myFile: reader.result });
+    };
+    reader.readAsDataURL(file);
+    // const base64 = convertToBase64(file);
+    console.log(postImage)
+    // setPostImage({ ...postImage, myFile: base64 })
+  }
   const handleSubmit = (event) => {
     event.preventDefault();
-
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-      name: data.get('fullName'),
-    });
+    data.append('image', postImage.myFile)
+    // console.log({
+    //   email: data.get('email'),
+    //   password: data.get('password'),
+    //   name: data.get('fullName'),
+    // });
     const config = {
       headers: {
         'Content-Type': 'application/json'
@@ -76,6 +85,7 @@ export default function Signup() {
       name: data.get('fullName'),
       email: data.get('email'),
       password: data.get('password'),
+      image: postImage.myFile
     }, config).then((data1) => {
       setdata3(data1.data)
       console.log(data1.data)
@@ -156,6 +166,18 @@ export default function Signup() {
                   label="rem to receive inspiration, marketing promotions and updates via email."
                 />
               </Grid> */}
+              <label htmlFor="file-upload" className='custom-file-upload'>
+                <img src={postImage.myFile } style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '50%' }} alt="IMG here" />
+              </label>
+
+              <input
+                type="file"
+                label="Image"
+                name="myFile"
+                id='file-upload'
+                accept='.jpeg, .png, .jpg'
+                onChange={(e) => handleFileUpload(e)}
+              />
             </Grid>
             <Button
               type="submit"
@@ -178,4 +200,17 @@ export default function Signup() {
       </Container>
     </ThemeProvider>
   );
+}
+
+function convertToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const fileReader = new FileReader();
+    fileReader.readAsDataURL(file);
+    fileReader.onload = () => {
+      resolve(fileReader.result)
+    };
+    fileReader.onerror = (error) => {
+      reject(error)
+    }
+  })
 }

@@ -35,7 +35,7 @@ code {
   display: flex;
   justify-content: space-between;
   margin: 1rem;
-  color:blue;
+  color: blue;
   /* background-color: red; */
 }
 
@@ -46,7 +46,7 @@ code {
   left: 50%;
   top: 50%;
   border: 3px solid grey;
-  transform: translate(-50%,-50%);
+  transform: translate(-50%, -50%);
 }
 
 input {
@@ -68,7 +68,8 @@ input {
   text-decoration: none;
 }
 
-.delete ,.edittodo{
+.delete,
+.edittodo {
   background-color: grey;
   border-radius: 50%;
   /* display: inline; */
@@ -108,4 +109,10 @@ a:active {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.ROW {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 }

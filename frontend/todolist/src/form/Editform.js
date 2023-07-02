@@ -1,7 +1,7 @@
 import axios from 'axios';
 import React, { useRef, useEffect, useState } from 'react'
 
-const Editform = ({ edittask, data }) => {
+const Editform = ({ justedittask, data }) => {
     const taskref = useRef("")
     const descref = useRef("")
     const [ele, setele] = useState({});
@@ -12,11 +12,11 @@ const Editform = ({ edittask, data }) => {
         taskref.current.focus()
     }, []);
     const handleSubmit = () => {
+        justedittask(taskref.current.value, descref.current.value, data._id)
         axios.put('http://localhost:4000/update/' + data._id.toString(), {
             text: taskref.current.value,
             description: descref.current.value
         }).then((data3) => setele(data3))
-        edittask(ele)
     }
     return (
         <>

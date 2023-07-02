@@ -6,6 +6,13 @@ const User = require('./model/Datamodel')
 const userdata = require('./model/userModel')
 const { generateToken } = require('./generateToken')
 const jwt = require('jsonwebtoken')
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
+const bodyParser = require('body-parser');
+const path = require('path');
+app.use(bodyParser.json({ limit: '10mb' }));
+app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
+
 // import {Users} from './model/Datamodel'
 app.use(cors())
 app.use(express.json());
@@ -20,23 +27,25 @@ mongoose.connect('mongodb://localhost:27017/self-todo', {
 
 //USERDATA APIs
 // let user1
-app.post('/registeruser', async (req, res) => {
-    console.log(req.body)
+app.post('/registeruser', upload.single('image'), async (req, res) => {
+    console.log("req.body",req.body)
     try {
         if (await userdata.findOne({ email: req.body.email })) {
             res.send({ status: 'FAIL', message: "user already exists" })
             return
         }
         const user1 = new userdata(req.body)
+        // user1.image = req.body.image || "";
         user1.save()
 
-        // console.log("user1", user1)
+        console.log("user1", user1)
         res.send({
             status: 'OK',
             message: "user registered successfully",
             name: user1.name,
             email: user1.email,
             ID: user1._id,
+            image: user1.image,
             token: generateToken(user1._id),
         })
     } catch (error) {
@@ -59,7 +68,7 @@ app.post('/loginuser', async (req, res) => {
             email: user.email,
             ID: user._id,
             token: generateToken(user._id),
-            
+
         })
         return
     }
@@ -87,12 +96,12 @@ app.get('/getuserdata', async (req, res) => {
 
 const authorizeUser = async (req, res, next) => {
     const auth = req.headers.authorization
-    console.log(auth)
+    // console.log(auth)
     const token = auth && auth.split(' ')[1]
-    console.log("TOKEN", token)
+    // console.log("TOKEN", token)
     jwt.verify(token, 'TOPSECRETDONTSHARE', (err, user) => {
         if (err) res.status(403).send('token not verified')
-        console.log("heyy", user)
+        // console.log("heyy", user)
         req.user = user
         next()
     })
@@ -101,8 +110,11 @@ const authorizeUser = async (req, res, next) => {
 app.get('/', authorizeUser, async (req, res) => {
     try {
         const auth = req.user.id
-        console.log("AUTH", auth)
-        const data = await User.find({ author: auth }).sort({ createdAt: -1 })
+        // console.log("AUTH", auth)
+        // console.log(User.find())
+        // console.log(User.find({ author: auth }).sort({ createdAt: -1 }))
+        const data = await User.find({ author: auth }).sort({ createdAt: -1 }).populate("author")
+        // console.log(data)
         res.send(data)
 
     } catch (error) {

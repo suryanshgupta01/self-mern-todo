@@ -6,6 +6,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import Editform from '../form/Editform';
 import CustomToastExample from '../component/SuccessToast';
 import { Button, useToast } from '@chakra-ui/react';
+import Stack from '@mui/material/Stack';
+import LinearProgress from '@mui/material/LinearProgress';
+import Skeleton from '@mui/material/Skeleton';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+const defaultTheme = createTheme();
 
 const Landingpage = ({ getID }) => {
     const info = JSON.parse(localStorage.getItem('userinfo'))
@@ -13,6 +18,7 @@ const Landingpage = ({ getID }) => {
     // if (!info) { navigate('/login') }
     const [data, setdata] = useState([]);
     const [popup, setpopup] = useState(false);
+    const [loading, setloading] = useState(true);
     const [popupedit, setpopupedit] = useState(false);
     const baseURL = "http://localhost:4000"
     const toast = useToast()
@@ -23,8 +29,12 @@ const Landingpage = ({ getID }) => {
         }
     }
     useEffect(() => {
-        axios.get(baseURL + "/", config)
-            .then((ele) => setdata(ele.data))
+        setTimeout(() => {
+            setloading(true);
+            axios.get(baseURL + "/", config)
+                .then((ele) => { setdata(ele.data); setloading(false); })
+        }, 500);
+
     }, []);
 
     // useEffect(() => {
@@ -83,6 +93,11 @@ const Landingpage = ({ getID }) => {
 
     // console.log("result", data3);
 
+    const justedittask = (task, desc, id) => {
+
+        const data5 = data.map((ele) => { if (ele._id === id) { ele.text = task; ele.description = desc; } return ele })
+        setdata(data5)
+    }
     const edittask = (ele) => {
         console.log("ele", ele)
         const data6 = (data.map((element) => {
@@ -113,21 +128,51 @@ const Landingpage = ({ getID }) => {
         })
     }
 
-    // console.log(data)
+    console.log(data)
     // localStorage.setItem('userinfo', JSON.stringify(info))
+    if (loading) return (
+        <ThemeProvider theme={defaultTheme}>
+            <div>
+                Voluntarily set loading
+                <div className='ROW'>
+
+                    <Skeleton variant="circular" width={100} height={100} />
+                    <Skeleton variant="text" sx={{ fontSize: '4rem' }}
+                        style={{ width: '40%' }} />
+
+                    <Skeleton variant="text" sx={{ fontSize: '4rem' }}
+                        style={{ width: '40%' }} />
+                </div>
+
+                <Skeleton animation="wave" style={{ width: '50%' }} height={60} />
+                <Skeleton animation="wave" style={{ width: '50%' }} height={60} />
+                <Skeleton animation="wave" style={{ width: '50%' }} height={60} />
+                <Skeleton animation="wave" style={{ width: '50%' }} height={60} />
+                <Skeleton animation="wave" style={{ width: '50%' }} height={60} />
+
+
+
+            </div>
+        </ThemeProvider >
+    )
+  
     return (
         <>
 
             {/* <Link to='/description'>DESC</Link> */}
-            <p className='welcome'>Welcome,{info ? info.name : 'Buddy'}
-                <span><Button onClick={Logout}>Logout</Button></span>
+            <p className='welcome'>
+
+                <p style={{ gap: '1.5rem', display: 'flex', flexDirection: 'row' }}>
+                    <img src={info.image} style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '50%' }} />
+                    <section>Welcome,{info.name}</section></p>
+                <span>{info.email}<Button onClick={Logout}>Logout</Button></span>
             </p>
             <h1 title='Hint: Deal with it'>This guy is too lazy to add css </h1>
             {popup ?
                 <Inputform newtask={newtask} /> : null
             }
             {popupedit ?
-                <Editform edittask={edittask} data={data3} /> : null
+                <Editform justedittask={justedittask} data={data3} /> : null
             }
             <div id='todoid' className='App'>
                 {
@@ -142,7 +187,7 @@ const Landingpage = ({ getID }) => {
                                         <p className='text'>
                                             {ele.text}
                                             {
-                                                (new Date(ele.createdAt)).getDate !== (new Date(ele.updatedAt)).getDate ? `${(new Date(ele.createdAt)).getDate}(edited)` : ''
+                                                (new Date(ele.createdAt)).getDate() !== (new Date(ele.updatedAt)).getDate() ? `(edited)` : ''
                                             }
                                         </p>
                                     </Link>

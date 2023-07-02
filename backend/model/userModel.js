@@ -9,11 +9,12 @@ const UserSchema = new mongoose.Schema({
     },
     password: {
         type: String, required: true
+    },
+    image: {
+        type: String, default:"https://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d50?s=100"
     }
 }, {
     timestamps: true
-}, {
-    collection: 'userdata1'
 })
 
 UserSchema.pre('save', async function (next) {
